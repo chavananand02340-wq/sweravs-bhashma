@@ -1,104 +1,133 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import {
+  FormEvent,
+  ReactNode,
+  useMemo,
+  useState,
+} from "react";
 
-type Product = {
-  id: number;
-  name: string;
-  shortName: string;
-  description: string;
-  weight: string;
-  scent: string;
-  price: number;
-  image: string;
-  tag?: string;
-};
+/* =========================================================
+   SWERAV'S BHASHMA
+   Premium Mithai Candle Store
+   ========================================================= */
+
+const WHATSAPP_NUMBER = "919999999999";
+
+const PRODUCTS = [
+  {
+    id: 1,
+    name: "Motichoor Laddoo Candle",
+    price: 449,
+    size: "Approx. 120g",
+    scent: "Saffron • Cardamom • Vanilla",
+    tag: "Bestseller",
+    description:
+      "A hyper-realistic festive laddoo, handcrafted from premium soy wax.",
+    image:
+      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&q=90&w=1200",
+    fallback:
+      "https://images.unsplash.com/photo-1602523961358-f9f03dd557db?auto=format&fit=crop&q=90&w=1200",
+  },
+  {
+    id: 2,
+    name: "Motichoor Laddoo Set of 4",
+    price: 1499,
+    size: "Approx. 480g",
+    scent: "Saffron • Cardamom • Vanilla",
+    tag: "Gift Set",
+    description:
+      "Four handcrafted mithai candles made for gifting and celebrations.",
+    image:
+      "https://images.unsplash.com/photo-1602523961358-f9f03dd557db?auto=format&fit=crop&q=90&w=1200",
+    fallback:
+      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&q=90&w=1200",
+  },
+  {
+    id: 3,
+    name: "Kaju Katli Tray Set",
+    price: 1299,
+    size: "Approx. 350g",
+    scent: "Almond • Vanilla • Rose",
+    tag: "Premium",
+    description:
+      "Creamy diamond-shaped candles finished with elegant gold-leaf detailing.",
+    image:
+      "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&q=90&w=1200",
+    fallback:
+      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&q=90&w=1200",
+  },
+  {
+    id: 4,
+    name: "Jalebi / Imarti Festive Candle",
+    price: 549,
+    size: "Approx. 150g",
+    scent: "Rose • Saffron • Vanilla",
+    tag: "Festive",
+    description:
+      "Intricately handcrafted spiral mithai-inspired soy wax candle.",
+    image:
+      "https://images.unsplash.com/photo-1603532648955-039310d9ed75?auto=format&fit=crop&q=90&w=1200",
+    fallback:
+      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&q=90&w=1200",
+  },
+  {
+    id: 5,
+    name: "Diwali Luxury Gift Box",
+    price: 1999,
+    size: "Customizable",
+    scent: "Choose your fragrance",
+    tag: "Customizable",
+    description:
+      "A luxurious festive hamper for family, clients and loved ones.",
+    image:
+      "https://images.unsplash.com/photo-1603905179139-db12ab5354f5?auto=format&fit=crop&q=90&w=1200",
+    fallback:
+      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&q=90&w=1200",
+  },
+  {
+    id: 6,
+    name: "Wedding Favour Box",
+    price: 249,
+    size: "From 50g each",
+    scent: "Custom fragrance",
+    tag: "Bulk",
+    description:
+      "Personalized mithai candles created specially for weddings and events.",
+    image:
+      "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&q=90&w=1200",
+    fallback:
+      "https://images.unsplash.com/photo-1602523961358-f9f03dd557db?auto=format&fit=crop&q=90&w=1200",
+  },
+];
+
+type Product = (typeof PRODUCTS)[number];
 
 type CartItem = Product & {
   quantity: number;
 };
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Motichoor Laddoo Candle",
-    shortName: "Motichoor Laddoo Candle",
-    description:
-      "A hyper-realistic festive laddoo, handcrafted from premium soy wax.",
-    weight: "Approx. 120g",
-    scent: "Saffron • Cardamom • Vanilla",
-    price: 449,
-    image:
-      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=1000&q=85",
-    tag: "Bestseller",
-  },
-  {
-    id: 2,
-    name: "Motichoor Laddoo Set of 4",
-    shortName: "Laddoo Set of 4",
-    description:
-      "Four handcrafted mithai candles made for gifting and celebrations.",
-    weight: "Approx. 480g",
-    scent: "Saffron • Cardamom • Vanilla",
-    price: 1499,
-    image:
-      "https://images.unsplash.com/photo-1602523961358-f9f03dd557db?auto=format&fit=crop&w=1000&q=85",
-    tag: "Gift Set",
-  },
-  {
-    id: 3,
-    name: "Kaju Katli Tray Set",
-    shortName: "Kaju Katli Tray Set",
-    description:
-      "Creamy diamond-shaped candles finished with elegant gold-leaf detailing.",
-    weight: "Approx. 350g",
-    scent: "Almond • Vanilla • Rose",
-    price: 1299,
-    image:
-      "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1000&q=85",
-    tag: "Premium",
-  },
-  {
-    id: 4,
-    name: "Jalebi / Imarti Festive Candle",
-    shortName: "Jalebi / Imarti Candle",
-    description:
-      "Intricately handcrafted spiral mithai-inspired soy wax candle.",
-    weight: "Approx. 150g",
-    scent: "Rose • Saffron • Vanilla",
-    price: 549,
-    image:
-      "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=1000&q=85",
-  },
-  {
-    id: 5,
-    name: "Diwali Luxury Gift Box",
-    shortName: "Diwali Luxury Gift Box",
-    description:
-      "A customizable festive hamper for family, clients and loved ones.",
-    weight: "Customizable",
-    scent: "Choose your fragrance",
-    price: 1999,
-    image:
-      "https://images.unsplash.com/photo-1603905179139-db12ab535c8b?auto=format&fit=crop&w=1000&q=85",
-    tag: "Customizable",
-  },
-  {
-    id: 6,
-    name: "Wedding Favour Box",
-    shortName: "Wedding Favour Box",
-    description:
-      "Personalized mithai candles created specially for weddings and events.",
-    weight: "From 50g each",
-    scent: "Custom fragrance",
-    price: 249,
-    image:
-      "https://images.unsplash.com/photo-1602874801006-e26c7d7d5f65?auto=format&fit=crop&w=1000&q=85",
-    tag: "Bulk",
-  },
-];
+type Customer = {
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+};
 
-const WHATSAPP_NUMBER = "919999999999";
+const EMPTY_CUSTOMER: Customer = {
+  name: "",
+  phone: "",
+  address: "",
+  city: "",
+  state: "",
+  pincode: "",
+};
+
+function formatPrice(price: number) {
+  return `₹${price.toLocaleString("en-IN")}`;
+}
 
 function createWhatsAppLink(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
@@ -106,30 +135,217 @@ function createWhatsAppLink(message: string) {
   )}`;
 }
 
-function formatPrice(price: number) {
-  return `₹${price.toLocaleString("en-IN")}`;
+/* =========================================================
+   ICONS
+   ========================================================= */
+
+function ArrowUpRightIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      className="h-4 w-4"
+    >
+      <path d="M7 17 17 7" />
+      <path d="M8 7h9v9" />
+    </svg>
+  );
 }
+
+function ArrowRightIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      className="h-4 w-4"
+    >
+      <path d="M5 12h13" />
+      <path d="m13 6 6 6-6 6" />
+    </svg>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      className="h-4 w-4"
+    >
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+function MinusIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      className="h-4 w-4"
+    >
+      <path d="M5 12h14" />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      className="h-5 w-5"
+    >
+      <path d="m6 6 12 12M18 6 6 18" />
+    </svg>
+  );
+}
+
+function ShoppingBagIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      className="h-5 w-5"
+    >
+      <path d="M5 8.5h14l-1 11H6l-1-11Z" />
+      <path d="M9 9V6.8a3 3 0 0 1 6 0V9" />
+    </svg>
+  );
+}
+
+function InstagramIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      className="h-5 w-5"
+    >
+      <rect x="3.5" y="3.5" width="17" height="17" rx="4" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.4" cy="6.7" r=".8" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      className="h-5 w-5"
+    >
+      <path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4A8 8 0 1 1 20 11.5Z" />
+      <path d="M9 8.5c.2-.4.5-.5.8-.3l1 .7c.3.2.3.5.1.8l-.4.6c.7 1.1 1.6 1.9 2.8 2.4l.5-.5c.2-.2.5-.2.8 0l1 .6c.3.2.3.5.2.8-.4.8-1 1.2-1.8 1.1-2.1-.3-5.2-2.7-6-4.9-.3-.7-.2-1.2.3-1.3Z" />
+    </svg>
+  );
+}
+
+/* =========================================================
+   IMAGE COMPONENT
+   ========================================================= */
+
+function ProductImage({
+  src,
+  fallback,
+  alt,
+  priority = false,
+}: {
+  src: string;
+  fallback: string;
+  alt: string;
+  priority?: boolean;
+}) {
+  const [imageSrc, setImageSrc] = useState(src);
+
+  return (
+    <div className="relative h-full w-full overflow-hidden bg-[#efe3d0]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(255,220,146,0.45),transparent_45%),linear-gradient(145deg,#ead9bd,#cba878)]" />
+
+      <img
+        src={imageSrc}
+        alt={alt}
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "auto"}
+        onError={() => {
+          if (imageSrc !== fallback) {
+            setImageSrc(fallback);
+          }
+        }}
+        className="relative z-10 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+      />
+
+      <div className="pointer-events-none absolute inset-0 z-20 bg-gradient-to-t from-black/20 via-transparent to-white/10" />
+    </div>
+  );
+}
+
+/* =========================================================
+   SMALL COMPONENTS
+   ========================================================= */
+
+function SectionLabel({
+  children,
+  light = false,
+}: {
+  children: ReactNode;
+  light?: boolean;
+}) {
+  return (
+    <div
+      className={`mb-4 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.28em] ${
+        light ? "text-[#e9bd72]" : "text-[#b87520]"
+      }`}
+    >
+      <span className="h-px w-7 bg-current" />
+      {children}
+    </div>
+  );
+}
+
+function TrustPill({
+  children,
+  icon,
+}: {
+  children: ReactNode;
+  icon: string;
+}) {
+  return (
+    <div className="flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-2 text-[11px] font-medium text-[#29221c] shadow-sm backdrop-blur">
+      <span className="text-[#b66d1d]">{icon}</span>
+      {children}
+    </div>
+  );
+}
+
+/* =========================================================
+   MAIN PAGE
+   ========================================================= */
 
 export default function Home() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [addedProduct, setAddedProduct] = useState<number | null>(null);
-
-  const [customer, setCustomer] = useState({
-    name: "",
-    phone: "",
-    address: "",
-    city: "",
-    state: "",
-    pincode: "",
-  });
-
-  const cartCount = useMemo(
-    () => cart.reduce((total, item) => total + item.quantity, 0),
-    [cart]
-  );
+  const [customer, setCustomer] = useState<Customer>(EMPTY_CUSTOMER);
+  const [mobileMenu, setMobileMenu] = useState(false);
+  const [bulkSent, setBulkSent] = useState(false);
 
   const subtotal = useMemo(
     () =>
@@ -140,7 +356,12 @@ export default function Home() {
     [cart]
   );
 
-  const addToCart = (product: Product) => {
+  const cartCount = useMemo(
+    () => cart.reduce((total, item) => total + item.quantity, 0),
+    [cart]
+  );
+
+  function addToCart(product: Product) {
     setCart((current) => {
       const existing = current.find((item) => item.id === product.id);
 
@@ -155,54 +376,43 @@ export default function Home() {
       return [...current, { ...product, quantity: 1 }];
     });
 
-    setAddedProduct(product.id);
+    setCartOpen(true);
+  }
 
-    setTimeout(() => {
-      setAddedProduct(null);
-    }, 1200);
-  };
+  function buyNow(product: Product) {
+    setCart([{ ...product, quantity: 1 }]);
+    setCheckoutOpen(true);
+    setCartOpen(false);
+  }
 
-  const increaseQuantity = (id: number) => {
-    setCart((current) =>
-      current.map((item) =>
-        item.id === id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
-    );
-  };
-
-  const decreaseQuantity = (id: number) => {
+  function changeQuantity(id: number, amount: number) {
     setCart((current) =>
       current
         .map((item) =>
           item.id === id
-            ? { ...item, quantity: item.quantity - 1 }
+            ? {
+                ...item,
+                quantity: Math.max(0, item.quantity + amount),
+              }
             : item
         )
         .filter((item) => item.quantity > 0)
     );
-  };
+  }
 
-  const removeItem = (id: number) => {
-    setCart((current) =>
-      current.filter((item) => item.id !== id)
-    );
-  };
+  function removeItem(id: number) {
+    setCart((current) => current.filter((item) => item.id !== id));
+  }
 
-  const buyNow = (product: Product) => {
-    addToCart(product);
-    setCartOpen(true);
-  };
-
-  const proceedToCheckout = () => {
-    if (cart.length === 0) return;
+  function openCheckout() {
+    if (!cart.length) return;
 
     setCartOpen(false);
     setCheckoutOpen(true);
-  };
+    setOrderPlaced(false);
+  }
 
-  const handleCheckoutSubmit = (event: FormEvent<HTMLFormElement>) => {
+  function handleCheckoutSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const items = cart
@@ -236,298 +446,424 @@ Please confirm my order and share the payment details.
 Thank you!`;
 
     setOrderPlaced(true);
+    window.open(createWhatsAppLink(message), "_blank");
+  }
+
+  function handleBulkSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const form = new FormData(event.currentTarget);
+
+    const name = String(form.get("name") || "");
+    const quantity = String(form.get("quantity") || "");
+    const eventDate = String(form.get("eventDate") || "");
+    const requirement = String(form.get("requirement") || "");
+
+    const message = `Hi SWERAV's Bhashma! ✨
+
+I want to enquire about a bulk/corporate order.
+
+Name: ${name}
+Quantity: ${quantity}
+Event Date: ${eventDate}
+
+Requirement:
+${requirement}
+
+Please share pricing and customization options.`;
 
     window.open(createWhatsAppLink(message), "_blank");
-  };
+    setBulkSent(true);
+  }
 
-  const resetOrder = () => {
-    setCart([]);
-    setCheckoutOpen(false);
-    setOrderPlaced(false);
-    setCustomer({
-      name: "",
-      phone: "",
-      address: "",
-      city: "",
-      state: "",
-      pincode: "",
+  function scrollTo(id: string) {
+    setMobileMenu(false);
+
+    document.getElementById(id)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
     });
-  };
+  }
 
   return (
-    <main className="min-h-screen bg-[#f7f0e5] text-[#171311]">
-      {/* ================= NAVBAR ================= */}
+    <main className="min-h-screen overflow-x-hidden bg-[#f7f0e4] text-[#17120e]">
+      {/* =====================================================
+          ANNOUNCEMENT
+          ===================================================== */}
 
-      <header className="sticky top-0 z-50 border-b border-black/10 bg-[#f7f0e5]/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-4 sm:px-6">
-          <a href="#" className="leading-none">
-            <div className="font-serif text-xl tracking-wide">
+      <div className="bg-[#17120e] px-4 py-2.5 text-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[#f4d29a]">
+        Handcrafted in India · Festive gifting · Pan India delivery
+      </div>
+
+      {/* =====================================================
+          NAVBAR
+          ===================================================== */}
+
+      <header className="sticky top-0 z-50 border-b border-black/5 bg-[#f7f0e4]/90 backdrop-blur-xl">
+        <div className="mx-auto flex h-[68px] max-w-7xl items-center justify-between px-5 sm:px-8">
+          <button
+            onClick={() => scrollTo("home")}
+            className="group text-left"
+          >
+            <div className="text-[16px] font-semibold tracking-[-0.04em] sm:text-[18px]">
               SWERAV&apos;s
             </div>
-
-            <div className="mt-1 text-[9px] font-semibold uppercase tracking-[0.35em] text-[#a85620]">
+            <div className="-mt-0.5 text-[10px] font-bold uppercase tracking-[0.34em] text-[#a8661d]">
               Bhashma
             </div>
-          </a>
+          </button>
 
-          <nav className="hidden items-center gap-8 text-xs font-semibold md:flex">
-            <a href="#collection" className="hover:text-[#a85620]">
+          <nav className="hidden items-center gap-8 md:flex">
+            <button
+              onClick={() => scrollTo("collection")}
+              className="text-xs font-medium text-black/65 transition hover:text-[#b66d1d]"
+            >
               Collection
-            </a>
+            </button>
 
-            <a href="#story" className="hover:text-[#a85620]">
+            <button
+              onClick={() => scrollTo("story")}
+              className="text-xs font-medium text-black/65 transition hover:text-[#b66d1d]"
+            >
               Our Story
-            </a>
+            </button>
 
-            <a href="#bulk" className="hover:text-[#a85620]">
-              Bulk Orders
-            </a>
+            <button
+              onClick={() => scrollTo("bulk")}
+              className="text-xs font-medium text-black/65 transition hover:text-[#b66d1d]"
+            >
+              Bulk & Corporate
+            </button>
           </nav>
 
-          <button
-            onClick={() => setCartOpen(true)}
-            className="relative rounded-full bg-[#171311] px-4 py-2.5 text-xs font-bold text-white transition hover:scale-105"
-          >
-            Cart
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCartOpen(true)}
+              className="relative flex h-11 items-center gap-2 rounded-full border border-black/10 bg-white/70 px-4 text-xs font-semibold shadow-sm transition hover:border-[#b87520]/40 hover:bg-white"
+            >
+              <ShoppingBagIcon />
+              <span className="hidden sm:inline">Cart</span>
 
-            {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#d87932] text-[10px]">
-                {cartCount}
-              </span>
-            )}
-          </button>
+              {cartCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#b86c1b] px-1 text-[9px] font-bold text-white">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setMobileMenu((value) => !value)}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/60 md:hidden"
+              aria-label="Open menu"
+            >
+              <div className="space-y-1.5">
+                <span className="block h-px w-4 bg-black" />
+                <span className="block h-px w-4 bg-black" />
+              </div>
+            </button>
+          </div>
         </div>
+
+        {mobileMenu && (
+          <div className="border-t border-black/5 bg-[#f7f0e4] px-5 py-5 md:hidden">
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={() => scrollTo("collection")}
+                className="rounded-xl px-4 py-3 text-left text-sm font-medium hover:bg-white"
+              >
+                Collection
+              </button>
+              <button
+                onClick={() => scrollTo("story")}
+                className="rounded-xl px-4 py-3 text-left text-sm font-medium hover:bg-white"
+              >
+                Our Story
+              </button>
+              <button
+                onClick={() => scrollTo("bulk")}
+                className="rounded-xl px-4 py-3 text-left text-sm font-medium hover:bg-white"
+              >
+                Bulk & Corporate
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* ================= HERO ================= */}
+      {/* =====================================================
+          HERO
+          ===================================================== */}
 
-      <section className="overflow-hidden bg-[#151110] text-white">
-        <div className="mx-auto grid max-w-7xl lg:grid-cols-2">
-          <div className="flex items-center px-5 py-14 sm:px-8 sm:py-20 lg:px-12 lg:py-28">
-            <div className="max-w-xl">
-              <div className="mb-5 inline-flex rounded-full border border-[#d9a25b]/40 bg-[#d9a25b]/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#e5b66e]">
-                Handcrafted in India
-              </div>
+      <section
+        id="home"
+        className="relative overflow-hidden bg-[#17120e] text-white"
+      >
+        <div className="absolute -left-28 -top-32 h-80 w-80 rounded-full bg-[#c8751d]/20 blur-3xl" />
+        <div className="absolute -bottom-40 right-0 h-96 w-96 rounded-full bg-[#dcae5f]/10 blur-3xl" />
 
-              <h1 className="font-serif text-[42px] leading-[1.02] sm:text-6xl lg:text-7xl">
-                Handcrafted Mithai Candles
-                <br />
-                <span className="text-[#e0a85b]">
-                  That Feel Like Celebrations
-                </span>
-              </h1>
+        <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[1fr_0.82fr] lg:gap-16 lg:px-10 lg:py-20">
+          <div className="max-w-2xl">
+            <div className="mb-7 inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#e7bb76]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#e7a64c]" />
+              Handcrafted Indian celebrations
+            </div>
 
-              <p className="mt-6 max-w-lg text-sm leading-7 text-white/65 sm:text-base">
-                Pure soy wax candles inspired by India&apos;s most loved
-                mithai — designed to look delicious, smell beautiful and
-                make every celebration memorable.
-              </p>
+            <h1 className="max-w-[700px] text-[46px] font-medium leading-[0.95] tracking-[-0.055em] sm:text-[68px] lg:text-[78px]">
+              Mithai
+              <br />
+              <span className="font-serif italic text-[#e4b86f]">
+                that glows.
+              </span>
+            </h1>
 
-              <div className="mt-7 flex flex-wrap gap-2 text-[10px] uppercase tracking-wider text-white/60">
-                <span className="rounded-full border border-white/15 px-3 py-2">
-                  Pure Soy Wax
-                </span>
+            <p className="mt-7 max-w-xl text-[15px] leading-7 text-white/65 sm:text-[17px]">
+              Handcrafted soy wax candles inspired by India&apos;s most loved
+              mithai — made to look delicious, smell beautiful and turn every
+              celebration into a memory.
+            </p>
 
-                <span className="rounded-full border border-white/15 px-3 py-2">
-                  Artisanal Shapes
-                </span>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button
+                onClick={() => scrollTo("collection")}
+                className="group flex h-13 items-center justify-center gap-3 rounded-full bg-[#d99035] px-6 text-sm font-bold text-[#17120e] shadow-[0_15px_40px_rgba(217,144,53,0.2)] transition hover:-translate-y-0.5 hover:bg-[#e5a34e]"
+              >
+                Explore Collection
+                <ArrowRightIcon />
+              </button>
 
-                <span className="rounded-full border border-white/15 px-3 py-2">
-                  Festive Gifting
-                </span>
-              </div>
+              <a
+                href={createWhatsAppLink(
+                  "Hi SWERAV's Bhashma! ✨ I would like to know more about your handcrafted mithai candles."
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className="flex h-13 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 text-sm font-semibold text-white transition hover:border-[#e7bb76]/50 hover:bg-white/10"
+              >
+                <WhatsAppIcon />
+                Order on WhatsApp
+              </a>
+            </div>
 
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <a
-                  href="#collection"
-                  className="rounded-full bg-[#d8792d] px-7 py-4 text-center text-sm font-bold text-white transition hover:-translate-y-0.5"
-                >
-                  Explore Collection
-                </a>
-
-                <a
-                  href={createWhatsAppLink(
-                    "Hi SWERAV's Bhashma! ✨ I'd like to explore your mithai candles."
-                  )}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-full border border-white/20 px-7 py-4 text-center text-sm font-bold transition hover:bg-white/10"
-                >
-                  Order on WhatsApp
-                </a>
-              </div>
+            <div className="mt-9 flex flex-wrap gap-2">
+              <TrustPill icon="✦">100% Soy Wax</TrustPill>
+              <TrustPill icon="✦">Hand Poured</TrustPill>
+              <TrustPill icon="✦">Made in India</TrustPill>
             </div>
           </div>
 
-          <div className="relative min-h-[430px] overflow-hidden lg:min-h-[650px]">
-            <img
-              src="https://images.unsplash.com/photo-1602874801006-e26c7d7d5f65?auto=format&fit=crop&w=1400&q=90"
-              alt="SWERAV's Bhashma handcrafted festive candles"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
+          <div className="relative mx-auto w-full max-w-[500px] lg:ml-auto">
+            <div className="absolute -inset-5 rounded-[36px] bg-[#b87520]/10 blur-2xl" />
 
-            <div className="absolute inset-0 bg-gradient-to-t from-[#151110] via-transparent to-black/10" />
+            <div className="relative aspect-[0.88] overflow-hidden rounded-[28px] border border-white/10 bg-[#3a2718] shadow-[0_30px_100px_rgba(0,0,0,0.45)]">
+              <ProductImage
+                src="https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&q=95&w=1400"
+                fallback="https://images.unsplash.com/photo-1602523961358-f9f03dd557db?auto=format&fit=crop&q=95&w=1400"
+                alt="Warm handcrafted candle"
+                priority
+              />
 
-            <div className="absolute bottom-6 left-5 right-5 rounded-2xl border border-white/15 bg-black/40 p-4 backdrop-blur-md">
-              <p className="font-serif text-lg">
-                Looks like mithai.
-                <br />
-                Smells like celebration.
-              </p>
+              <div className="absolute bottom-4 left-4 right-4 z-30 rounded-2xl border border-white/15 bg-black/35 p-4 backdrop-blur-xl">
+                <div className="flex items-end justify-between gap-3">
+                  <div>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#e8bd77]">
+                      The Bhashma feeling
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-white">
+                      Looks like mithai. Feels like celebration.
+                    </p>
+                  </div>
+
+                  <span className="text-2xl text-[#e7b96e]">✦</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* bottom gold line */}
+        <div className="h-px bg-gradient-to-r from-transparent via-[#c8924d]/50 to-transparent" />
       </section>
 
-      {/* ================= TRUST STRIP ================= */}
+      {/* =====================================================
+          TRUST STRIP
+          ===================================================== */}
 
-      <section className="border-b border-black/10 bg-[#ead8c2]">
+      <section className="border-b border-black/5 bg-[#f1e7d8]">
         <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-black/10 sm:grid-cols-4">
           {[
-            ["100%", "Organic Soy Wax"],
-            ["Hand", "Poured in India"],
-            ["0%", "Toxic Fragrances"],
-            ["Pan India", "Delivery"],
-          ].map(([title, text]) => (
-            <div key={text} className="px-4 py-6 text-center">
-              <div className="font-serif text-lg">{title}</div>
-
-              <div className="mt-1 text-[9px] uppercase tracking-wider text-black/55">
-                {text}
-              </div>
+            ["01", "100%", "Soy Wax"],
+            ["02", "Hand", "Poured"],
+            ["03", "0%", "Harsh Fragrances"],
+            ["04", "Pan India", "Delivery"],
+          ].map(([number, title, subtitle]) => (
+            <div
+              key={number}
+              className="px-4 py-6 text-center sm:px-5 sm:py-7"
+            >
+              <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#b87520]">
+                {number}
+              </p>
+              <p className="mt-2 text-[15px] font-semibold">{title}</p>
+              <p className="mt-0.5 text-[10px] text-black/50">
+                {subtitle}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ================= COLLECTION ================= */}
+      {/* =====================================================
+          COLLECTION
+          ===================================================== */}
 
       <section
         id="collection"
-        className="px-4 py-16 sm:px-6 sm:py-24"
+        className="mx-auto max-w-7xl scroll-mt-20 px-5 py-16 sm:px-8 sm:py-24 lg:px-10"
       >
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-9">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.3em] text-[#ad5a26]">
-              The Collection
-            </p>
-
-            <div className="flex items-end justify-between gap-5">
-              <h2 className="font-serif text-4xl sm:text-5xl">
-                Mithai, reimagined.
-              </h2>
-
-              <p className="hidden max-w-xs text-right text-xs leading-5 text-black/50 sm:block">
-                Handcrafted pieces designed to bring the warmth of Indian
-                celebrations into your space.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
-            {products.map((product) => (
-              <article
-                key={product.id}
-                className="group overflow-hidden rounded-2xl bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
-              >
-                <div className="relative aspect-square overflow-hidden bg-[#ded1c3]">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                  />
-
-                  {product.tag && (
-                    <span className="absolute left-2 top-2 rounded-full bg-[#171311] px-2.5 py-1.5 text-[8px] font-bold uppercase tracking-wider text-white">
-                      {product.tag}
-                    </span>
-                  )}
-                </div>
-
-                <div className="p-3.5 sm:p-5">
-                  <h3 className="font-serif text-lg leading-tight sm:text-xl">
-                    {product.name}
-                  </h3>
-
-                  <p className="mt-2 hidden text-xs leading-5 text-black/50 sm:block">
-                    {product.description}
-                  </p>
-
-                  <div className="mt-3 space-y-1 text-[10px] leading-4 text-black/60">
-                    <div>
-                      <span className="font-semibold text-black">
-                        Size:
-                      </span>{" "}
-                      {product.weight}
-                    </div>
-
-                    <div>
-                      <span className="font-semibold text-black">
-                        Scent:
-                      </span>{" "}
-                      {product.scent}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between gap-2">
-                    <span className="font-serif text-xl">
-                      {formatPrice(product.price)}
-                    </span>
-
-                    <button
-                      onClick={() => addToCart(product)}
-                      className="rounded-full bg-[#171311] px-3 py-2 text-[9px] font-bold text-white transition hover:bg-[#a95622] sm:px-4"
-                    >
-                      {addedProduct === product.id
-                        ? "Added ✓"
-                        : "Add to Cart"}
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => buyNow(product)}
-                    className="mt-2 w-full rounded-full border border-black/15 py-2.5 text-[9px] font-bold uppercase tracking-wider transition hover:bg-[#f3e9dc]"
-                  >
-                    Buy Now
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================= STORY ================= */}
-
-      <section
-        id="story"
-        className="bg-[#181312] px-5 py-16 text-white sm:px-8 sm:py-24"
-      >
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2 lg:items-center">
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.3em] text-[#dda45c]">
-              More than a candle
-            </p>
+            <SectionLabel>Shop the collection</SectionLabel>
 
-            <h2 className="font-serif text-4xl leading-tight sm:text-6xl">
-              Your favourite
+            <h2 className="max-w-2xl text-[38px] font-medium leading-[1] tracking-[-0.045em] sm:text-[52px]">
+              Mithai,
               <br />
-              mithai.
-              <br />
-              <span className="text-[#dda45c]">
-                Now a keepsake.
+              <span className="font-serif italic text-[#b87520]">
+                reimagined.
               </span>
             </h2>
           </div>
 
-          <div className="max-w-lg">
-            <p className="text-sm leading-7 text-white/60 sm:text-base">
-              SWERAV&apos;s Bhashma transforms the visual language of
-              Indian sweets into handcrafted candles. Each piece is
-              created to feel nostalgic, luxurious and unmistakably
-              Indian.
-            </p>
+          <p className="max-w-sm text-sm leading-6 text-black/55">
+            Handcrafted pieces designed to bring the warmth of Indian
+            celebrations into your space.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {PRODUCTS.map((product, index) => (
+            <article
+              key={product.id}
+              className="group overflow-hidden rounded-[24px] border border-black/7 bg-[#fffaf3] shadow-[0_8px_30px_rgba(67,40,16,0.05)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_20px_55px_rgba(67,40,16,0.13)]"
+            >
+              <div className="relative aspect-[0.94] overflow-hidden">
+                <ProductImage
+                  src={product.image}
+                  fallback={product.fallback}
+                  alt={product.name}
+                />
+
+                <div className="absolute left-4 top-4 z-30 rounded-full border border-white/30 bg-[#17120e]/70 px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-white backdrop-blur-md">
+                  {product.tag}
+                </div>
+
+                <div className="absolute bottom-4 right-4 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-[#17120e] opacity-0 shadow-lg transition duration-300 group-hover:opacity-100">
+                  <ArrowUpRightIcon />
+                </div>
+              </div>
+
+              <div className="p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-[17px] font-semibold leading-snug tracking-[-0.02em]">
+                      {product.name}
+                    </h3>
+                    <p className="mt-1.5 text-xs leading-5 text-black/50">
+                      {product.description}
+                    </p>
+                  </div>
+
+                  <p className="shrink-0 text-[17px] font-bold text-[#a96117]">
+                    {formatPrice(product.price)}
+                  </p>
+                </div>
+
+                <div className="mt-5 space-y-2 border-t border-black/7 pt-4">
+                  <div className="flex justify-between gap-3 text-[11px]">
+                    <span className="text-black/40">Size</span>
+                    <span className="font-medium">{product.size}</span>
+                  </div>
+
+                  <div className="flex justify-between gap-3 text-[11px]">
+                    <span className="text-black/40">Scent</span>
+                    <span className="text-right font-medium">
+                      {product.scent}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid grid-cols-[1fr_auto] gap-2">
+                  <button
+                    onClick={() => addToCart(product)}
+                    className="h-11 rounded-full border border-[#b87520]/30 bg-transparent text-xs font-bold text-[#8f5616] transition hover:border-[#b87520] hover:bg-[#b87520] hover:text-white"
+                  >
+                    Add to Cart
+                  </button>
+
+                  <button
+                    onClick={() => buyNow(product)}
+                    className="flex h-11 items-center justify-center gap-2 rounded-full bg-[#17120e] px-4 text-xs font-bold text-white transition hover:bg-[#b87520]"
+                  >
+                    Buy
+                    <ArrowRightIcon />
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* =====================================================
+          STORY
+          ===================================================== */}
+
+      <section
+        id="story"
+        className="scroll-mt-20 border-y border-black/5 bg-[#eee2d1]"
+      >
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-2 lg:px-10">
+          <div className="relative overflow-hidden rounded-[28px] bg-[#c49b64] shadow-[0_25px_70px_rgba(61,35,12,0.14)]">
+            <div className="aspect-[1/1.02]">
+              <ProductImage
+                src="https://images.unsplash.com/photo-1602523961358-f9f03dd557db?auto=format&fit=crop&q=90&w=1200"
+                fallback="https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&q=90&w=1200"
+                alt="Handcrafted candles"
+              />
+            </div>
+
+            <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/15 bg-black/45 p-5 text-white backdrop-blur-xl">
+              <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#e8bd77]">
+                More than a candle
+              </p>
+              <p className="mt-1 text-lg font-medium">
+                Your favourite mithai. Now a keepsake.
+              </p>
+            </div>
+          </div>
+
+          <div className="lg:pl-8">
+            <SectionLabel>Our story</SectionLabel>
+
+            <h2 className="text-[39px] font-medium leading-[1] tracking-[-0.045em] sm:text-[52px]">
+              Nostalgia,
+              <br />
+              <span className="font-serif italic text-[#b87520]">
+                handcrafted.
+              </span>
+            </h2>
+
+            <div className="mt-7 space-y-5 text-sm leading-7 text-black/60">
+              <p>
+                SWERAV&apos;s Bhashma transforms the visual language of Indian
+                sweets into handcrafted soy wax candles.
+              </p>
+
+              <p>
+                Every piece is designed to feel nostalgic, luxurious and
+                unmistakably Indian — bringing the warmth of festivals,
+                weddings and family celebrations into beautiful spaces.
+              </p>
+            </div>
 
             <div className="mt-8 grid grid-cols-2 gap-3">
               {[
@@ -538,9 +874,10 @@ Thank you!`;
               ].map((item) => (
                 <div
                   key={item}
-                  className="rounded-xl border border-white/10 px-4 py-4 text-xs"
+                  className="rounded-2xl border border-black/7 bg-white/50 px-4 py-4 text-xs font-semibold"
                 >
-                  ✦ {item}
+                  <span className="mr-2 text-[#b87520]">✦</span>
+                  {item}
                 </div>
               ))}
             </div>
@@ -548,322 +885,406 @@ Thank you!`;
         </div>
       </section>
 
-      {/* ================= BULK ORDERS ================= */}
+      {/* =====================================================
+          BULK
+          ===================================================== */}
 
       <section
         id="bulk"
-        className="px-4 py-16 sm:px-6 sm:py-24"
+        className="scroll-mt-20 bg-[#17120e] text-white"
       >
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-[28px] bg-[#dfc5a7]">
-          <div className="grid lg:grid-cols-2">
-            <div className="p-7 sm:p-12 lg:p-16">
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#8e461f]">
-                Bulk & Corporate
-              </p>
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-[0.85fr_1fr] lg:px-10">
+          <div>
+            <SectionLabel light>Bulk & corporate</SectionLabel>
 
-              <h2 className="mt-3 font-serif text-4xl leading-tight sm:text-5xl">
-                Making 20, 50 or
-                <br />
+            <h2 className="max-w-xl text-[42px] font-medium leading-[0.98] tracking-[-0.045em] sm:text-[58px]">
+              Making 20,
+              <br />
+              50 or{" "}
+              <span className="font-serif italic text-[#e3b66c]">
                 500 gifts?
-              </h2>
+              </span>
+            </h2>
 
-              <p className="mt-5 max-w-md text-sm leading-6 text-black/60">
-                From intimate wedding favours to large corporate gifting
-                orders, tell us what you&apos;re planning and we&apos;ll
-                help create the right set for you.
-              </p>
+            <p className="mt-7 max-w-lg text-sm leading-7 text-white/55">
+              From intimate wedding favours to large corporate gifting
+              orders, tell us what you&apos;re planning and we&apos;ll help
+              create the right set for you.
+            </p>
 
-              <div className="mt-7 space-y-3 text-xs">
-                <div>✓ Bulk pricing available</div>
-                <div>✓ Custom packaging</div>
-                <div>✓ Personalized gifting</div>
-                <div>✓ Wedding & corporate orders</div>
-              </div>
+            <div className="mt-8 space-y-3">
+              {[
+                "Bulk pricing available",
+                "Custom packaging",
+                "Personalized gifting",
+                "Wedding & corporate orders",
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center gap-3 text-sm text-white/75"
+                >
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#b87520]/15 text-[11px] text-[#e6b76c]">
+                    ✓
+                  </span>
+                  {item}
+                </div>
+              ))}
             </div>
+          </div>
 
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
+          <div className="rounded-[28px] border border-white/10 bg-white/[0.045] p-5 shadow-[0_25px_80px_rgba(0,0,0,0.2)] sm:p-7">
+            {bulkSent ? (
+              <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#b87520]/15 text-2xl text-[#e7b96e]">
+                  ✓
+                </div>
 
-                const form = new FormData(event.currentTarget);
+                <h3 className="mt-6 text-2xl font-semibold">
+                  Enquiry sent
+                </h3>
 
-                const message = `Hi SWERAV's Bhashma! ✨
+                <p className="mt-3 max-w-sm text-sm leading-6 text-white/50">
+                  WhatsApp has been opened so our team can continue the
+                  conversation with you.
+                </p>
 
-I'd like to request a bulk quote.
+                <button
+                  onClick={() => setBulkSent(false)}
+                  className="mt-7 rounded-full border border-white/10 px-5 py-3 text-xs font-semibold hover:bg-white/5"
+                >
+                  Send another enquiry
+                </button>
+              </div>
+            ) : (
+              <form
+                onSubmit={handleBulkSubmit}
+                className="space-y-4"
+              >
+                <div>
+                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-white/45">
+                    Your name
+                  </label>
+                  <input
+                    name="name"
+                    required
+                    placeholder="Enter your name"
+                    className="h-13 w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#c98a3c]"
+                  />
+                </div>
 
-Name: ${form.get("bulkName")}
-Quantity: ${form.get("quantity")}
-Event Date: ${form.get("eventDate")}
-Requirement: ${form.get("bulkMessage")}`;
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-white/45">
+                      Quantity
+                    </label>
+                    <input
+                      name="quantity"
+                      required
+                      type="number"
+                      min="1"
+                      placeholder="e.g. 100"
+                      className="h-13 w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#c98a3c]"
+                    />
+                  </div>
 
-                window.open(
-                  createWhatsAppLink(message),
-                  "_blank"
-                );
-              }}
-              className="bg-white/50 p-6 sm:p-10"
-            >
-              <div className="space-y-4">
-                <input
-                  name="bulkName"
-                  required
-                  placeholder="Your Name"
-                  className="w-full rounded-xl border border-black/10 bg-white px-4 py-4 text-sm outline-none transition focus:border-[#ad5a26]"
-                />
+                  <div>
+                    <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-white/45">
+                      Event date
+                    </label>
+                    <input
+                      name="eventDate"
+                      type="date"
+                      className="h-13 w-full rounded-2xl border border-white/10 bg-white/[0.05] px-4 text-sm text-white outline-none focus:border-[#c98a3c]"
+                    />
+                  </div>
+                </div>
 
-                <input
-                  name="quantity"
-                  required
-                  type="number"
-                  min="1"
-                  placeholder="Quantity"
-                  className="w-full rounded-xl border border-black/10 bg-white px-4 py-4 text-sm outline-none transition focus:border-[#ad5a26]"
-                />
-
-                <input
-                  name="eventDate"
-                  type="date"
-                  className="w-full rounded-xl border border-black/10 bg-white px-4 py-4 text-sm outline-none transition focus:border-[#ad5a26]"
-                />
-
-                <textarea
-                  name="bulkMessage"
-                  required
-                  rows={4}
-                  placeholder="Tell us about your event, customization or packaging requirements..."
-                  className="w-full resize-none rounded-xl border border-black/10 bg-white px-4 py-4 text-sm outline-none transition focus:border-[#ad5a26]"
-                />
+                <div>
+                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-white/45">
+                    Requirement
+                  </label>
+                  <textarea
+                    name="requirement"
+                    required
+                    rows={5}
+                    placeholder="Tell us about packaging, personalization, fragrance, event, logo branding etc."
+                    className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-4 text-sm text-white outline-none placeholder:text-white/25 focus:border-[#c98a3c]"
+                  />
+                </div>
 
                 <button
                   type="submit"
-                  className="w-full rounded-xl bg-[#171311] px-5 py-4 text-sm font-bold text-white transition hover:bg-[#a95622]"
+                  className="flex h-13 w-full items-center justify-center gap-2 rounded-full bg-[#d99035] text-sm font-bold text-[#17120e] transition hover:bg-[#e5a34e]"
                 >
-                  Request Bulk Quote →
+                  Request Bulk Quote
+                  <ArrowUpRightIcon />
+                </button>
+
+                <p className="text-center text-[10px] text-white/30">
+                  We&apos;ll continue the conversation on WhatsApp.
+                </p>
+              </form>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          WHY BHASHMA
+          ===================================================== */}
+
+      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24 lg:px-10">
+        <div className="text-center">
+          <SectionLabel>Made with care</SectionLabel>
+
+          <h2 className="text-[39px] font-medium leading-none tracking-[-0.045em] sm:text-[52px]">
+            Why <span className="font-serif italic text-[#b87520]">Bhashma?</span>
+          </h2>
+        </div>
+
+        <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              icon: "✦",
+              title: "100% Soy Wax",
+              text: "Clean-burning wax chosen for a beautiful candle experience.",
+            },
+            {
+              icon: "◌",
+              title: "Hand-poured",
+              text: "Every piece receives careful handcrafted attention.",
+            },
+            {
+              icon: "♡",
+              title: "Quality Fragrance",
+              text: "Thoughtfully selected fragrance profiles for gifting.",
+            },
+            {
+              icon: "↗",
+              title: "Pan India",
+              text: "Delivery available across India for celebrations.",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="rounded-[24px] border border-black/7 bg-[#fffaf3] p-6 transition hover:-translate-y-1 hover:shadow-xl"
+            >
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#b87520]/10 text-lg text-[#a96117]">
+                {item.icon}
+              </div>
+
+              <h3 className="mt-6 text-base font-semibold">
+                {item.title}
+              </h3>
+
+              <p className="mt-2 text-xs leading-6 text-black/50">
+                {item.text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* =====================================================
+          FINAL CTA
+          ===================================================== */}
+
+      <section className="px-5 pb-10 sm:px-8">
+        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[30px] bg-[#d9b06c] px-6 py-14 text-center sm:px-10 sm:py-20">
+          <div className="absolute -left-20 -top-24 h-60 w-60 rounded-full bg-white/20 blur-3xl" />
+          <div className="absolute -bottom-24 -right-10 h-60 w-60 rounded-full bg-[#8d4e14]/15 blur-3xl" />
+
+          <div className="relative">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#6f4217]">
+              Let&apos;s celebrate
+            </p>
+
+            <h2 className="mx-auto mt-4 max-w-2xl text-[40px] font-medium leading-[0.98] tracking-[-0.05em] text-[#21170e] sm:text-[60px]">
+              A little mithai.
+              <br />
+              <span className="font-serif italic">A lot of memories.</span>
+            </h2>
+
+            <p className="mx-auto mt-5 max-w-md text-sm leading-6 text-[#4e351e]/70">
+              Bring something unexpected to your next celebration.
+            </p>
+
+            <a
+              href={createWhatsAppLink(
+                "Hi SWERAV's Bhashma! ✨ I would like to start an order."
+              )}
+              target="_blank"
+              rel="noreferrer"
+              className="mx-auto mt-7 flex h-13 w-fit items-center gap-2 rounded-full bg-[#17120e] px-7 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-[#2c2119]"
+            >
+              <WhatsAppIcon />
+              Start Your Order
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* =====================================================
+          FOOTER
+          ===================================================== */}
+
+      <footer className="border-t border-black/7 bg-[#f1e7d8]">
+        <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-10">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_0.7fr_0.7fr]">
+            <div>
+              <div className="text-xl font-semibold tracking-[-0.04em]">
+                SWERAV&apos;s
+              </div>
+
+              <div className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.34em] text-[#a8661d]">
+                Bhashma
+              </div>
+
+              <p className="mt-5 max-w-sm text-sm leading-6 text-black/50">
+                Handcrafted mithai candles made for Indian celebrations,
+                gifting and beautiful homes.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">
+                Explore
+              </p>
+
+              <div className="mt-4 space-y-3">
+                <button
+                  onClick={() => scrollTo("collection")}
+                  className="block text-sm text-black/65 hover:text-[#b87520]"
+                >
+                  Collection
+                </button>
+
+                <button
+                  onClick={() => scrollTo("bulk")}
+                  className="block text-sm text-black/65 hover:text-[#b87520]"
+                >
+                  Bulk & Corporate
+                </button>
+
+                <button
+                  onClick={() => scrollTo("story")}
+                  className="block text-sm text-black/65 hover:text-[#b87520]"
+                >
+                  Our Story
                 </button>
               </div>
+            </div>
 
-              <p className="mt-4 text-center text-[9px] text-black/45">
-                We&apos;ll continue the conversation on WhatsApp.
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-black/40">
+                Connect
               </p>
-            </form>
-          </div>
-        </div>
-      </section>
 
-      {/* ================= TRUST ================= */}
+              <div className="mt-4 space-y-3">
+                <a
+                  href="https://instagram.com/sweravsbhashma"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 text-sm text-black/65 hover:text-[#b87520]"
+                >
+                  <InstagramIcon />
+                  @sweravsbhashma
+                </a>
 
-      <section className="border-y border-black/10 bg-[#f1e5d5] px-4 py-14">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-8 text-center">
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#a85620]">
-              Made with care
-            </p>
+                <a
+                  href={createWhatsAppLink(
+                    "Hi SWERAV's Bhashma! ✨"
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 text-sm text-black/65 hover:text-[#b87520]"
+                >
+                  <WhatsAppIcon />
+                  Chat with us
+                </a>
 
-            <h2 className="mt-2 font-serif text-3xl">
-              Why Bhashma?
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[
-              ["✦", "100% Soy Wax", "Clean-burning wax"],
-              ["◌", "Hand-poured", "Made in India"],
-              ["♡", "Non-Toxic", "Quality fragrances"],
-              ["↗", "Pan India", "Delivery available"],
-            ].map(([icon, title, text]) => (
-              <div
-                key={title}
-                className="rounded-2xl bg-white p-5 text-center"
-              >
-                <div className="text-xl text-[#b35b27]">
-                  {icon}
-                </div>
-
-                <div className="mt-3 text-xs font-bold">
-                  {title}
-                </div>
-
-                <div className="mt-1 text-[9px] text-black/45">
-                  {text}
-                </div>
+                <p className="pt-2 text-xs text-black/40">
+                  India · Pan India Delivery
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ================= FINAL CTA ================= */}
-
-      <section className="bg-[#c65f27] px-5 py-16 text-center text-white sm:py-20">
-        <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/70">
-          Let&apos;s celebrate
-        </p>
-
-        <h2 className="mx-auto mt-3 max-w-2xl font-serif text-4xl leading-tight sm:text-6xl">
-          A little mithai.
-          <br />
-          A lot of memories.
-        </h2>
-
-        <a
-          href={createWhatsAppLink(
-            "Hi SWERAV's Bhashma! ✨ I'd like to order some handcrafted mithai candles."
-          )}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-8 inline-flex rounded-full bg-[#171311] px-8 py-4 text-sm font-bold transition hover:scale-105"
-        >
-          Start Your Order on WhatsApp
-        </a>
-      </section>
-
-      {/* ================= FOOTER ================= */}
-
-      <footer className="bg-[#171311] px-5 py-12 text-white sm:px-8">
-        <div className="mx-auto grid max-w-7xl gap-10 sm:grid-cols-3">
-          <div>
-            <div className="font-serif text-2xl">
-              SWERAV&apos;s
-            </div>
-
-            <div className="mt-1 text-[9px] uppercase tracking-[0.35em] text-[#dc9d56]">
-              Bhashma
-            </div>
-
-            <p className="mt-5 max-w-xs text-xs leading-6 text-white/45">
-              Handcrafted mithai candles made for Indian celebrations,
-              gifting and beautiful homes.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider">
-              Explore
-            </h3>
-
-            <div className="mt-4 space-y-3 text-xs text-white/55">
-              <a
-                href="#collection"
-                className="block hover:text-white"
-              >
-                Collection
-              </a>
-
-              <a href="#bulk" className="block hover:text-white">
-                Bulk & Corporate
-              </a>
-
-              <a href="#" className="block hover:text-white">
-                Shipping & Returns
-              </a>
             </div>
           </div>
 
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider">
-              Connect
-            </h3>
-
-            <div className="mt-4 space-y-3 text-xs text-white/55">
-              <a
-                href="https://instagram.com/sweravsbhashma"
-                target="_blank"
-                rel="noreferrer"
-                className="block hover:text-white"
-              >
-                Instagram · @sweravsbhashma
-              </a>
-
-              <a
-                href={createWhatsAppLink(
-                  "Hi SWERAV's Bhashma! I'd like to know more about your candles."
-                )}
-                target="_blank"
-                rel="noreferrer"
-                className="block hover:text-white"
-              >
-                WhatsApp · Chat with us
-              </a>
-
-              <p>India · Pan India Delivery</p>
-            </div>
+          <div className="mt-10 border-t border-black/7 pt-6 text-center text-[10px] text-black/35">
+            © 2026 SWERAV&apos;s Bhashma. All rights reserved.
           </div>
-        </div>
-
-        <div className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-6 text-[9px] text-white/30">
-          © {new Date().getFullYear()} SWERAV&apos;s Bhashma. All rights
-          reserved.
         </div>
       </footer>
 
-      {/* ================= FLOATING WHATSAPP ================= */}
+      {/* =====================================================
+          FLOATING WHATSAPP
+          ===================================================== */}
 
       <a
         href={createWhatsAppLink(
-          "Hi SWERAV's Bhashma! ✨ I'd like to enquire about your candles."
+          "Hi SWERAV's Bhashma! ✨ I would like to know more about your candles."
         )}
         target="_blank"
         rel="noreferrer"
+        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#17120e] text-white shadow-[0_12px_35px_rgba(0,0,0,0.22)] transition hover:-translate-y-1 hover:bg-[#b87520]"
         aria-label="Chat on WhatsApp"
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#171311] text-xl text-white shadow-2xl ring-4 ring-white/70 transition hover:scale-110"
       >
-        ◔
+        <WhatsAppIcon />
       </a>
 
-      {/* ================= CART DRAWER ================= */}
+      {/* =====================================================
+          CART DRAWER
+          ===================================================== */}
 
       {cartOpen && (
-        <div className="fixed inset-0 z-[100]">
+        <div className="fixed inset-0 z-[80]">
           <button
             aria-label="Close cart"
             onClick={() => setCartOpen(false)}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           />
 
-          <aside className="absolute bottom-0 right-0 top-0 flex w-full max-w-md flex-col bg-[#f7f0e5] shadow-2xl">
-            <div className="flex items-center justify-between border-b border-black/10 p-5">
+          <aside className="absolute bottom-0 right-0 top-0 flex w-full max-w-[460px] flex-col bg-[#fffaf3] shadow-2xl">
+            <div className="flex items-center justify-between border-b border-black/7 px-5 py-5 sm:px-7">
               <div>
-                <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#a85620]">
-                  Your Selection
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b87520]">
+                  Your selection
                 </p>
-
-                <h2 className="mt-1 font-serif text-2xl">
+                <h2 className="mt-1 text-xl font-semibold">
                   Cart
                 </h2>
               </div>
 
               <button
                 onClick={() => setCartOpen(false)}
-                className="rounded-full bg-black/5 px-4 py-2 text-xs"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-black/8 hover:bg-black/5"
               >
-                Close
+                <CloseIcon />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5">
-              {cart.length === 0 ? (
+            <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-7">
+              {!cart.length ? (
                 <div className="flex h-full flex-col items-center justify-center text-center">
-                  <div className="text-5xl">✦</div>
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#ead9bd]">
+                    <ShoppingBagIcon />
+                  </div>
 
-                  <h3 className="mt-4 font-serif text-2xl">
+                  <h3 className="mt-5 text-lg font-semibold">
                     Your cart is empty
                   </h3>
 
                   <p className="mt-2 max-w-xs text-xs leading-5 text-black/45">
-                    Add a little mithai magic to your celebration.
+                    Choose a handcrafted mithai candle and bring some
+                    celebration home.
                   </p>
 
                   <button
                     onClick={() => {
                       setCartOpen(false);
-
-                      document
-                        .getElementById("collection")
-                        ?.scrollIntoView({
-                          behavior: "smooth",
-                        });
+                      scrollTo("collection");
                     }}
-                    className="mt-6 rounded-full bg-[#171311] px-6 py-3 text-xs font-bold text-white"
+                    className="mt-6 rounded-full bg-[#17120e] px-5 py-3 text-xs font-bold text-white"
                   >
                     Explore Collection
                   </button>
@@ -873,60 +1294,59 @@ Requirement: ${form.get("bulkMessage")}`;
                   {cart.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl bg-white p-3"
+                      className="rounded-2xl border border-black/7 bg-white p-3"
                     >
                       <div className="flex gap-3">
-                        <img
-                          src={item.image}
-                          alt=""
-                          className="h-20 w-20 rounded-xl object-cover"
-                        />
+                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#ead9bd]">
+                          <ProductImage
+                            src={item.image}
+                            fallback={item.fallback}
+                            alt={item.name}
+                          />
+                        </div>
 
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-serif text-base leading-tight">
-                            {item.shortName}
-                          </h3>
+                          <div className="flex justify-between gap-3">
+                            <h3 className="text-sm font-semibold leading-5">
+                              {item.name}
+                            </h3>
 
-                          <p className="mt-2 text-xs font-semibold">
+                            <button
+                              onClick={() => removeItem(item.id)}
+                              className="text-black/30 hover:text-red-600"
+                              aria-label={`Remove ${item.name}`}
+                            >
+                              <CloseIcon />
+                            </button>
+                          </div>
+
+                          <p className="mt-1 text-xs font-semibold text-[#a96117]">
                             {formatPrice(item.price)}
                           </p>
 
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="mt-2 text-[9px] uppercase tracking-wider text-red-700"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
+                          <div className="mt-3 flex items-center gap-2">
+                            <button
+                              onClick={() =>
+                                changeQuantity(item.id, -1)
+                              }
+                              className="flex h-7 w-7 items-center justify-center rounded-full border border-black/10"
+                            >
+                              <MinusIcon />
+                            </button>
 
-                      <div className="mt-3 flex items-center justify-between border-t border-black/5 pt-3">
-                        <span className="text-[10px] text-black/40">
-                          Quantity
-                        </span>
+                            <span className="w-5 text-center text-xs font-semibold">
+                              {item.quantity}
+                            </span>
 
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() =>
-                              decreaseQuantity(item.id)
-                            }
-                            className="flex h-7 w-7 items-center justify-center rounded-full border border-black/10"
-                          >
-                            −
-                          </button>
-
-                          <span className="w-4 text-center text-xs font-bold">
-                            {item.quantity}
-                          </span>
-
-                          <button
-                            onClick={() =>
-                              increaseQuantity(item.id)
-                            }
-                            className="flex h-7 w-7 items-center justify-center rounded-full bg-[#171311] text-white"
-                          >
-                            +
-                          </button>
+                            <button
+                              onClick={() =>
+                                changeQuantity(item.id, 1)
+                              }
+                              className="flex h-7 w-7 items-center justify-center rounded-full border border-black/10"
+                            >
+                              <PlusIcon />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -936,354 +1356,287 @@ Requirement: ${form.get("bulkMessage")}`;
             </div>
 
             {cart.length > 0 && (
-              <div className="border-t border-black/10 bg-white p-5">
+              <div className="border-t border-black/7 bg-[#f7f0e4] px-5 py-5 sm:px-7">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-black/50">
+                  <span className="text-xs text-black/45">
                     Subtotal
                   </span>
-
-                  <span className="font-serif text-2xl">
+                  <span className="text-lg font-bold">
                     {formatPrice(subtotal)}
                   </span>
                 </div>
 
-                <button
-                  onClick={proceedToCheckout}
-                  className="mt-4 w-full rounded-full bg-[#171311] py-4 text-sm font-bold text-white transition hover:bg-[#a95620]"
-                >
-                  Proceed to Buy →
-                </button>
-
-                <p className="mt-3 text-center text-[9px] text-black/40">
-                  Payment will be added after final approval.
+                <p className="mt-2 text-[10px] leading-4 text-black/40">
+                  Shipping and final customization details will be confirmed
+                  before payment.
                 </p>
+
+                <button
+                  onClick={openCheckout}
+                  className="mt-4 flex h-13 w-full items-center justify-center gap-2 rounded-full bg-[#17120e] text-sm font-bold text-white transition hover:bg-[#b87520]"
+                >
+                  Proceed to Buy
+                  <ArrowRightIcon />
+                </button>
               </div>
             )}
           </aside>
         </div>
       )}
 
-      {/* ================= CHECKOUT ================= */}
+      {/* =====================================================
+          CHECKOUT
+          ===================================================== */}
 
       {checkoutOpen && (
-        <div className="fixed inset-0 z-[110] overflow-y-auto bg-[#f7f0e5]">
-          <div className="mx-auto min-h-screen max-w-5xl">
-            <div className="sticky top-0 z-20 flex items-center justify-between border-b border-black/10 bg-[#f7f0e5]/95 px-4 py-4 backdrop-blur-xl sm:px-6">
-              <div>
-                <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#a85620]">
-                  SWERAV&apos;s Bhashma
-                </p>
+        <div className="fixed inset-0 z-[90] overflow-y-auto bg-[#17120e]/70 p-3 backdrop-blur-md sm:p-6">
+          <div className="mx-auto min-h-full max-w-5xl py-2 sm:py-6">
+            <div className="overflow-hidden rounded-[28px] bg-[#fffaf3] shadow-2xl">
+              <div className="flex items-center justify-between border-b border-black/7 px-5 py-5 sm:px-8">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#b87520]">
+                    Secure order
+                  </p>
+                  <h2 className="mt-1 text-xl font-semibold">
+                    Checkout
+                  </h2>
+                </div>
 
-                <h2 className="font-serif text-xl">
-                  Checkout
-                </h2>
+                <button
+                  onClick={() => setCheckoutOpen(false)}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-black/8"
+                >
+                  <CloseIcon />
+                </button>
               </div>
 
-              <button
-                onClick={() => setCheckoutOpen(false)}
-                className="rounded-full bg-black/5 px-4 py-2 text-xs"
-              >
-                Back
-              </button>
-            </div>
-
-            {orderPlaced ? (
-              <div className="flex min-h-[75vh] items-center justify-center px-5 py-12">
-                <div className="max-w-md text-center">
-                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#dfc5a7] text-3xl">
+              {orderPlaced ? (
+                <div className="px-6 py-20 text-center sm:px-10">
+                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#b87520]/10 text-3xl text-[#b87520]">
                     ✓
                   </div>
 
-                  <p className="mt-7 text-[10px] font-bold uppercase tracking-[0.3em] text-[#a85620]">
-                    Order Request Sent
+                  <h2 className="mt-7 text-3xl font-semibold">
+                    Order request sent
+                  </h2>
+
+                  <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-black/50">
+                    WhatsApp has been opened with your order details. The
+                    Bhashma team can now confirm availability, shipping and
+                    payment details with you.
                   </p>
-
-                  <h1 className="mt-3 font-serif text-4xl">
-                    Thank you, {customer.name.split(" ")[0]}!
-                  </h1>
-
-                  <p className="mt-5 text-sm leading-7 text-black/55">
-                    Your order details have been prepared for WhatsApp.
-                    SWERAV&apos;s Bhashma can now confirm availability,
-                    delivery and payment with you.
-                  </p>
-
-                  <div className="mt-8 rounded-2xl bg-white p-5 text-left">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-black/45">
-                        Order value
-                      </span>
-
-                      <strong>{formatPrice(subtotal)}</strong>
-                    </div>
-
-                    <div className="mt-3 flex justify-between text-xs">
-                      <span className="text-black/45">
-                        Items
-                      </span>
-
-                      <strong>{cartCount}</strong>
-                    </div>
-                  </div>
 
                   <button
-                    onClick={resetOrder}
-                    className="mt-7 rounded-full bg-[#171311] px-7 py-4 text-sm font-bold text-white"
+                    onClick={() => {
+                      setCheckoutOpen(false);
+                      setOrderPlaced(false);
+                    }}
+                    className="mt-8 rounded-full bg-[#17120e] px-7 py-3.5 text-sm font-bold text-white"
                   >
                     Continue Shopping
                   </button>
                 </div>
-              </div>
-            ) : (
-              <div className="grid gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_380px] lg:py-12">
-                {/* CUSTOMER FORM */}
-
+              ) : (
                 <form
                   onSubmit={handleCheckoutSubmit}
-                  className="rounded-3xl bg-white p-5 shadow-sm sm:p-7"
+                  className="grid lg:grid-cols-[1fr_0.7fr]"
                 >
-                  <div className="mb-7">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#a85620]">
-                      Step 1
+                  <div className="border-b border-black/7 p-5 sm:p-8 lg:border-b-0 lg:border-r">
+                    <h3 className="text-lg font-semibold">
+                      Customer details
+                    </h3>
+
+                    <p className="mt-1 text-xs text-black/45">
+                      Enter your details so we can confirm your order on
+                      WhatsApp.
                     </p>
 
-                    <h1 className="mt-2 font-serif text-3xl">
-                      Delivery Details
-                    </h1>
-
-                    <p className="mt-2 text-xs leading-5 text-black/45">
-                      Enter your details so we can prepare your order.
-                    </p>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-wider">
-                        Full Name
-                      </label>
-
-                      <input
-                        required
-                        value={customer.name}
-                        onChange={(event) =>
-                          setCustomer({
-                            ...customer,
-                            name: event.target.value,
-                          })
-                        }
-                        placeholder="Your full name"
-                        className="w-full rounded-xl border border-black/10 bg-[#faf7f2] px-4 py-4 text-sm outline-none focus:border-[#a85620]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-wider">
-                        Mobile Number
-                      </label>
-
-                      <input
-                        required
-                        type="tel"
-                        pattern="[0-9]{10}"
-                        value={customer.phone}
-                        onChange={(event) =>
-                          setCustomer({
-                            ...customer,
-                            phone: event.target.value,
-                          })
-                        }
-                        placeholder="10-digit mobile number"
-                        className="w-full rounded-xl border border-black/10 bg-[#faf7f2] px-4 py-4 text-sm outline-none focus:border-[#a85620]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-wider">
-                        Full Address
-                      </label>
-
-                      <textarea
-                        required
-                        rows={3}
-                        value={customer.address}
-                        onChange={(event) =>
-                          setCustomer({
-                            ...customer,
-                            address: event.target.value,
-                          })
-                        }
-                        placeholder="House / Flat, Street, Area"
-                        className="w-full resize-none rounded-xl border border-black/10 bg-[#faf7f2] px-4 py-4 text-sm outline-none focus:border-[#a85620]"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="mt-7 space-y-4">
                       <div>
-                        <label className="mb-2 block text-[10px] font-bold uppercase tracking-wider">
-                          City
+                        <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-black/45">
+                          Full name
                         </label>
-
                         <input
                           required
-                          value={customer.city}
+                          value={customer.name}
                           onChange={(event) =>
                             setCustomer({
                               ...customer,
-                              city: event.target.value,
+                              name: event.target.value,
                             })
                           }
-                          placeholder="City"
-                          className="w-full rounded-xl border border-black/10 bg-[#faf7f2] px-4 py-4 text-sm outline-none focus:border-[#a85620]"
+                          placeholder="Your full name"
+                          className="h-13 w-full rounded-2xl border border-black/10 bg-white px-4 text-sm outline-none transition focus:border-[#b87520]"
                         />
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-[10px] font-bold uppercase tracking-wider">
-                          State
+                        <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-black/45">
+                          Mobile number
                         </label>
-
                         <input
                           required
-                          value={customer.state}
+                          type="tel"
+                          value={customer.phone}
                           onChange={(event) =>
                             setCustomer({
                               ...customer,
-                              state: event.target.value,
+                              phone: event.target.value,
                             })
                           }
-                          placeholder="State"
-                          className="w-full rounded-xl border border-black/10 bg-[#faf7f2] px-4 py-4 text-sm outline-none focus:border-[#a85620]"
+                          placeholder="10-digit mobile number"
+                          className="h-13 w-full rounded-2xl border border-black/10 bg-white px-4 text-sm outline-none transition focus:border-[#b87520]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-black/45">
+                          Full address
+                        </label>
+                        <textarea
+                          required
+                          rows={3}
+                          value={customer.address}
+                          onChange={(event) =>
+                            setCustomer({
+                              ...customer,
+                              address: event.target.value,
+                            })
+                          }
+                          placeholder="House / flat, street, area"
+                          className="w-full resize-none rounded-2xl border border-black/10 bg-white px-4 py-4 text-sm outline-none transition focus:border-[#b87520]"
+                        />
+                      </div>
+
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-black/45">
+                            City
+                          </label>
+                          <input
+                            required
+                            value={customer.city}
+                            onChange={(event) =>
+                              setCustomer({
+                                ...customer,
+                                city: event.target.value,
+                              })
+                            }
+                            placeholder="City"
+                            className="h-13 w-full rounded-2xl border border-black/10 bg-white px-4 text-sm outline-none transition focus:border-[#b87520]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-black/45">
+                            State
+                          </label>
+                          <input
+                            required
+                            value={customer.state}
+                            onChange={(event) =>
+                              setCustomer({
+                                ...customer,
+                                state: event.target.value,
+                              })
+                            }
+                            placeholder="State"
+                            className="h-13 w-full rounded-2xl border border-black/10 bg-white px-4 text-sm outline-none transition focus:border-[#b87520]"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-[10px] font-bold uppercase tracking-[0.16em] text-black/45">
+                          Pincode
+                        </label>
+                        <input
+                          required
+                          inputMode="numeric"
+                          value={customer.pincode}
+                          onChange={(event) =>
+                            setCustomer({
+                              ...customer,
+                              pincode: event.target.value,
+                            })
+                          }
+                          placeholder="6-digit pincode"
+                          className="h-13 w-full rounded-2xl border border-black/10 bg-white px-4 text-sm outline-none transition focus:border-[#b87520]"
                         />
                       </div>
                     </div>
-
-                    <div>
-                      <label className="mb-2 block text-[10px] font-bold uppercase tracking-wider">
-                        Pincode
-                      </label>
-
-                      <input
-                        required
-                        pattern="[0-9]{6}"
-                        value={customer.pincode}
-                        onChange={(event) =>
-                          setCustomer({
-                            ...customer,
-                            pincode: event.target.value,
-                          })
-                        }
-                        placeholder="6-digit pincode"
-                        className="w-full rounded-xl border border-black/10 bg-[#faf7f2] px-4 py-4 text-sm outline-none focus:border-[#a85620]"
-                      />
-                    </div>
                   </div>
 
-                  <div className="mt-7 rounded-2xl bg-[#f7f0e5] p-4">
-                    <p className="text-xs font-bold">
-                      Payment
-                    </p>
+                  <div className="bg-[#f7f0e4] p-5 sm:p-8">
+                    <h3 className="text-lg font-semibold">
+                      Order summary
+                    </h3>
 
-                    <p className="mt-1 text-[10px] leading-5 text-black/45">
-                      Online payment will be available here after the
-                      payment gateway is connected. For now, your order
-                      request will be confirmed through WhatsApp.
-                    </p>
-                  </div>
+                    <div className="mt-6 space-y-3">
+                      {cart.map((item) => (
+                        <div
+                          key={item.id}
+                          className="flex justify-between gap-4 border-b border-black/7 pb-3"
+                        >
+                          <div>
+                            <p className="text-xs font-semibold">
+                              {item.name}
+                            </p>
+                            <p className="mt-1 text-[10px] text-black/40">
+                              Qty: {item.quantity}
+                            </p>
+                          </div>
 
-                  <button
-                    type="submit"
-                    className="mt-5 w-full rounded-full bg-[#171311] py-4 text-sm font-bold text-white transition hover:bg-[#a85620]"
-                  >
-                    Confirm Order on WhatsApp →
-                  </button>
-                </form>
-
-                {/* ORDER SUMMARY */}
-
-                <aside className="h-fit rounded-3xl bg-[#181312] p-5 text-white sm:p-7 lg:sticky lg:top-24">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#dda45c]">
-                    Step 2
-                  </p>
-
-                  <h2 className="mt-2 font-serif text-3xl">
-                    Your Order
-                  </h2>
-
-                  <div className="mt-6 space-y-4">
-                    {cart.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex gap-3 border-b border-white/10 pb-4"
-                      >
-                        <img
-                          src={item.image}
-                          alt=""
-                          className="h-16 w-16 rounded-xl object-cover"
-                        />
-
-                        <div className="flex-1">
-                          <h3 className="text-sm">
-                            {item.shortName}
-                          </h3>
-
-                          <p className="mt-1 text-[10px] text-white/45">
-                            Qty: {item.quantity}
+                          <p className="text-xs font-bold">
+                            {formatPrice(
+                              item.price * item.quantity
+                            )}
                           </p>
                         </div>
-
-                        <div className="text-xs font-semibold">
-                          {formatPrice(
-                            item.price * item.quantity
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-6 space-y-3 border-b border-white/10 pb-5 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-white/45">
-                        Items
-                      </span>
-
-                      <span>{cartCount}</span>
+                      ))}
                     </div>
 
-                    <div className="flex justify-between">
-                      <span className="text-white/45">
-                        Delivery
+                    <div className="mt-6 flex items-center justify-between border-t border-black/10 pt-5">
+                      <span className="text-xs text-black/45">
+                        Subtotal
                       </span>
 
-                      <span>Confirmed on WhatsApp</span>
+                      <span className="text-xl font-bold">
+                        {formatPrice(subtotal)}
+                      </span>
                     </div>
-                  </div>
 
-                  <div className="mt-5 flex items-center justify-between">
-                    <span className="text-sm text-white/50">
-                      Total
-                    </span>
+                    <div className="mt-5 rounded-2xl border border-[#b87520]/15 bg-[#b87520]/7 p-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#a96117]">
+                        Payment
+                      </p>
 
-                    <span className="font-serif text-3xl">
-                      {formatPrice(subtotal)}
-                    </span>
-                  </div>
+                      <p className="mt-2 text-xs leading-5 text-black/50">
+                        Online payment will be added after the payment gateway
+                        is connected. For now, confirm your order on WhatsApp
+                        and the team will share payment details.
+                      </p>
+                    </div>
 
-                  <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-[10px] font-bold">
-                      🔒 Secure order process
+                    <button
+                      type="submit"
+                      className="mt-6 flex h-13 w-full items-center justify-center gap-2 rounded-full bg-[#17120e] text-sm font-bold text-white transition hover:bg-[#b87520]"
+                    >
+                      Confirm Order on WhatsApp
+                      <WhatsAppIcon />
+                    </button>
+
+                    <p className="mt-3 text-center text-[10px] leading-4 text-black/35">
+                      By continuing, you&apos;ll be redirected to WhatsApp
+                      with your order summary.
                     </p>
-
-                    <p className="mt-1 text-[9px] leading-5 text-white/40">
-                      Your details are used only to process this order
-                      request.
-                    </p>
                   </div>
-                </aside>
-              </div>
-            )}
+                </form>
+              )}
+            </div>
           </div>
         </div>
       )}
     </main>
   );
-         }
+      }
